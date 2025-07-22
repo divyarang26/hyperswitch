@@ -31,9 +31,7 @@ key1 = "Merchant id"
 
 # DemoPay connector credentials (update api_key with your real or sandbox DemoPay API key)
 [demopay]
-api_key = "your_demo_pay_api_key_here"
-# Add other keys if required by DemoPay (e.g., key1 = "value")
-
+api_key = "dummy"
 api_secret = "Secret key"
 
 [shift4]
@@ -368,6 +366,3 @@ key1="Client Secret"
 [payload]
 api_key="API Key"
 
-
-[demopay]
-api_key = "dummy"
