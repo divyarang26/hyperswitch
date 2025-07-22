@@ -1,7 +1,10 @@
-use hyperswitch_domain_models::payment_method_data::{Card, PaymentMethodData};
+use hyperswitch_domain_models::payment_method_data::{Card, PaymentMethodData, WalletData, PaypalRedirection};
+use common_utils::pii::Email;
+use common_utils::crypto::Encryptable;
 use masking::Secret;
 use router::types::{self, api, storage::enums};
 use test_utils::connector_auth;
+
 
 use crate::utils::{self, ConnectorActions};
 
@@ -44,14 +47,55 @@ fn get_default_payment_info() -> Option<utils::PaymentInfo> {
 
 fn payment_method_details() -> Option<types::PaymentsAuthorizeData> {
     Some(types::PaymentsAuthorizeData {
-        payment_method_data: types::api::PaymentMethodData::Wallet(
-            types::api::WalletData::DemoPayWallet {
-                wallet_id: "demo_wallet_id".to_string(), // Update this if your wallet structure is different
-            }
-        ),
-        currency: "USD".to_string(),
-        amount: 1000, // 10.00 USD in minor units
-        ..Default::default()
+        payment_method_data: PaymentMethodData::Wallet(
+    WalletData::PaypalRedirect(PaypalRedirection {
+        email: Some(Email::from(Encryptable::new(
+            Secret::new("test@example.com".to_string()),
+            Secret::new(Vec::new()),
+        ))),
+    })
+),
+        amount: 1000,
+        order_tax_amount: None,
+        email: None,
+        customer_name: None,
+        currency: enums::Currency::USD,
+        confirm: false,
+        statement_descriptor_suffix: None,
+        statement_descriptor: None,
+        capture_method: None,
+        router_return_url: None,
+        webhook_url: None,
+        complete_authorize_url: None,
+        setup_future_usage: None,
+        mandate_id: None,
+        off_session: None,
+        customer_acceptance: None,
+        setup_mandate_details: None,
+        browser_info: None,
+        order_details: None,
+        order_category: None,
+        session_token: None,
+        enrolled_for_3ds: false,
+        related_transaction_id: None,
+        payment_experience: None,
+        payment_method_type: None,
+        surcharge_details: None,
+        customer_id: None,
+        request_incremental_authorization: false,
+        metadata: None,
+        authentication_data: None,
+        request_extended_authorization: None,
+        split_payments: None,
+        minor_amount: common_utils::types::MinorUnit::new(1000),
+        merchant_order_reference_id: None,
+        integrity_object: None,
+        shipping_cost: None,
+        additional_payment_method_data: None,
+        merchant_account_id: None,
+        merchant_config_currency: None,
+        connector_testing_data: None,
+        order_id: None,
     })
 }
 
