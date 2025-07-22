@@ -13,7 +13,7 @@ use masking::Secret;
 use serde::{Deserialize, Serialize};
 
 use crate::types::{RefundsResponseRouterData, ResponseRouterData};
-use hyperswitch_domain_models::router_request_types::ResponseId;
+
 
 #[derive(Debug, Clone)]
 pub struct DemopayRouterData<T> {
@@ -157,14 +157,14 @@ impl<F> TryFrom<&DemopayRouterData<&RefundsRouterData<F>>> for DemopayRefundRequ
     type Error = error_stack::Report<errors::ConnectorError>;
     fn try_from(item: &DemopayRouterData<&RefundsRouterData<F>>) -> Result<Self, Self::Error> {
         let currency = item.router_data.request.currency.to_string();
-        let payment_id = match &item.router_data.request.connector_transaction_id {
-            Some(ResponseId::ConnectorTransactionId(ref id)) => id.clone(),
-            _ => return Err(errors::ConnectorError::MissingRequiredField { field_name: "connector_transaction_id" }.into()),
-        };
+        let payment_id = &item.router_data.request.connector_transaction_id;
+        if payment_id.is_empty() {
+            return Err(errors::ConnectorError::MissingRequiredField { field_name: "connector_transaction_id" }.into());
+        }
         Ok(Self {
             amount: item.amount.to_owned(),
             currency,
-            payment_id,
+            payment_id: payment_id.to_string(),
         })
     }
 }

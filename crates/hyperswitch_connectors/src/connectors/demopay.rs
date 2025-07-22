@@ -363,10 +363,10 @@ impl ConnectorIntegration<Capture, PaymentsCaptureData, PaymentsResponseData> fo
         req: &PaymentsCaptureRouterData,
         connectors: &Connectors,
     ) -> CustomResult<String, errors::ConnectorError> {
-        let txn_id = match &req.request.connector_transaction_id {
-            ResponseId::ConnectorTransactionId(ref id) => id,
-            _ => return Err(errors::ConnectorError::MissingRequiredField { field_name: "connector_transaction_id" }.into()),
-        };
+        let txn_id = &req.request.connector_transaction_id;
+        if txn_id.is_empty() {
+            return Err(errors::ConnectorError::MissingRequiredField { field_name: "connector_transaction_id" }.into());
+        }
         Ok(format!("{}/payments/{}/capture", self.base_url(connectors), txn_id))
     }
 
@@ -375,7 +375,7 @@ impl ConnectorIntegration<Capture, PaymentsCaptureData, PaymentsResponseData> fo
         req: &PaymentsCaptureRouterData,
         _connectors: &Connectors,
     ) -> CustomResult<RequestContent, errors::ConnectorError> {
-        let amount = req.request.amount_to_capture.unwrap_or(req.request.amount);
+        let amount = req.request.amount_to_capture;
         let req_body = serde_json::json!({
             "amount": amount,
         });
@@ -446,12 +446,12 @@ impl ConnectorIntegration<Execute, RefundsData, RefundsResponseData> for Demopay
     }
 
     fn get_url(
-    &self,
-    _req: &PaymentsAuthorizeRouterData,
-    connectors: &Connectors,
-) -> CustomResult<String, errors::ConnectorError> {
-    Ok(format!("{}/payments", self.base_url(connectors)))
-}
+        &self,
+        req: &RefundsRouterData<Execute>,
+        connectors: &Connectors,
+    ) -> CustomResult<String, errors::ConnectorError> {
+        Ok(format!("{}/payments", self.base_url(connectors)))
+    }
 
     fn get_request_body(
         &self,
