@@ -368,3 +368,6 @@ key1="Client Secret"
 [payload]
 api_key="API Key"
 
+
+[demopay]
+api_key = "dummy"
