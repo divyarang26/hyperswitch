@@ -114,11 +114,8 @@ async fn should_capture_authorized_payment() {
     .authorize_and_capture_payment(payment_method_details(), None, get_default_payment_info())
     .await;
 
-if let Err(e) = &response {
-    println!("Test failed with error: {:?}", e);
-    return;
-}
-let resp_data = response.unwrap();
+
+let resp_data = response;
 assert_eq!(resp_data.status, enums::AttemptStatus::Charged);
 }
 
@@ -349,7 +346,7 @@ async fn should_fail_for_refund_amount_higher_than_payment_amount() {
             get_default_payment_info(),
         )
         .await;
-    assert!(response.is_ok());
+    assert!(response.is_err());
 }
 
 // Connector dependent test cases goes here
