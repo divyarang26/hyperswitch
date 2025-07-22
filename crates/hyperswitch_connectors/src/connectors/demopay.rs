@@ -46,6 +46,7 @@ use masking::{ExposeInterface, Mask};
 use transformers as demopay;
 
 use crate::{constants::headers, types::ResponseRouterData, utils};
+use hyperswitch_domain_models::router_request_types::ResponseId;
 
 #[derive(Clone)]
 pub struct Demopay {
@@ -295,7 +296,7 @@ impl ConnectorIntegration<PSync, PaymentsSyncData, PaymentsResponseData> for Dem
         connectors: &Connectors,
     ) -> CustomResult<String, errors::ConnectorError> {
         let txn_id = match &req.connector_transaction_id {
-            types::ResponseId::ConnectorTransactionId(ref id) => id,
+            ResponseId::ConnectorTransactionId(ref id) => id,
             _ => return Err(errors::ConnectorError::MissingRequiredField { field_name: "connector_transaction_id" }.into()),
         };
         Ok(format!("{}/payments/{}", self.base_url(connectors), txn_id))
@@ -363,7 +364,7 @@ impl ConnectorIntegration<Capture, PaymentsCaptureData, PaymentsResponseData> fo
         connectors: &Connectors,
     ) -> CustomResult<String, errors::ConnectorError> {
         let txn_id = match &req.connector_transaction_id {
-            types::ResponseId::ConnectorTransactionId(ref id) => id,
+            ResponseId::ConnectorTransactionId(ref id) => id,
             _ => return Err(errors::ConnectorError::MissingRequiredField { field_name: "connector_transaction_id" }.into()),
         };
         Ok(format!("{}/payments/{}/capture", self.base_url(connectors), txn_id))
