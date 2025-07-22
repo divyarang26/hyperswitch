@@ -14,7 +14,6 @@ use serde::{Deserialize, Serialize};
 
 use crate::types::{RefundsResponseRouterData, ResponseRouterData};
 
-//TODO: Fill the struct with respective fields
 #[derive(Debug, Clone)]
 pub struct DemopayRouterData<T> {
     pub amount: StringMinorUnit,
@@ -33,6 +32,7 @@ impl<T> From<(StringMinorUnit, T)> for DemopayRouterData<T> {
 #[derive(Debug, Serialize, PartialEq)]
 pub struct DemopayPaymentsRequest {
     pub amount: StringMinorUnit,
+    pub currency: String,
     pub wallet_id: String,
 }
 
@@ -41,6 +41,8 @@ pub struct DemopayPaymentsResponse {
     pub txn_id: String,
     pub status: String, // e.g., "authorized", "captured", "failed"
     pub message: Option<String>,
+    pub amount: Option<StringMinorUnit>,
+    pub currency: Option<String>,
 }
 
 impl TryFrom<&DemopayRouterData<&PaymentsAuthorizeRouterData>> for DemopayPaymentsRequest {
@@ -48,8 +50,12 @@ impl TryFrom<&DemopayRouterData<&PaymentsAuthorizeRouterData>> for DemopayPaymen
     fn try_from(
         item: &DemopayRouterData<&PaymentsAuthorizeRouterData>,
     ) -> Result<Self, Self::Error> {
-        let wallet_id = match &item.router_data.request.payment_method_data {
-            PaymentMethodData::Wallet(_wallet_data) => String::new(), // TODO: Replace with correct field if needed
+        let (wallet_id, currency) = match &item.router_data.request.payment_method_data {
+            PaymentMethodData::Wallet(wallet_data) => {
+                // Example: extract wallet_id and currency from wallet_data
+                // (Replace with actual extraction logic as per your WalletData structure)
+                ("demo_wallet_id".to_string(), item.router_data.request.currency.to_string())
+            },
             _ => return Err(errors::ConnectorError::NotImplemented(
                 "Only wallet payments supported for DemoPay".to_string(),
             )
@@ -57,6 +63,7 @@ impl TryFrom<&DemopayRouterData<&PaymentsAuthorizeRouterData>> for DemopayPaymen
         };
         Ok(Self {
             amount: item.amount.clone(),
+            currency,
             wallet_id,
         })
     }
@@ -86,11 +93,11 @@ impl TryFrom<&ConnectorAuthType> for DemopayAuthType {
     }
 }
 // PaymentsResponse
-//TODO: Append the remaining status flags
 #[derive(Debug, Clone, Copy, Default, Serialize, Deserialize, PartialEq)]
 #[serde(rename_all = "lowercase")]
 pub enum DemopayPaymentStatus {
-    Succeeded,
+    Authorized,
+    Captured,
     Failed,
     #[default]
     Processing,
@@ -99,14 +106,13 @@ pub enum DemopayPaymentStatus {
 impl From<DemopayPaymentStatus> for common_enums::AttemptStatus {
     fn from(item: DemopayPaymentStatus) -> Self {
         match item {
-            DemopayPaymentStatus::Succeeded => Self::Charged,
+            DemopayPaymentStatus::Authorized => Self::Authorized,
+            DemopayPaymentStatus::Captured => Self::Charged,
             DemopayPaymentStatus::Failed => Self::Failure,
-            DemopayPaymentStatus::Processing => Self::Authorizing,
+            DemopayPaymentStatus::Processing => Self::Pending,
         }
     }
 }
-
-//TODO: Fill the struct with respective fields
 
 impl<F, T> TryFrom<ResponseRouterData<F, DemopayPaymentsResponse, T, PaymentsResponseData>>
     for RouterData<F, T, PaymentsResponseData>
@@ -139,19 +145,25 @@ impl<F, T> TryFrom<ResponseRouterData<F, DemopayPaymentsResponse, T, PaymentsRes
     }
 }
 
-//TODO: Fill the struct with respective fields
-// REFUND :
-// Type definition for RefundRequest
 #[derive(Default, Debug, Serialize)]
 pub struct DemopayRefundRequest {
     pub amount: StringMinorUnit,
+    pub currency: String,
+    pub payment_id: String,
 }
 
 impl<F> TryFrom<&DemopayRouterData<&RefundsRouterData<F>>> for DemopayRefundRequest {
     type Error = error_stack::Report<errors::ConnectorError>;
     fn try_from(item: &DemopayRouterData<&RefundsRouterData<F>>) -> Result<Self, Self::Error> {
+        let currency = item.router_data.request.currency.to_string();
+        let payment_id = match &item.router_data.request.connector_transaction_id {
+            Some(types::ResponseId::ConnectorTransactionId(ref id)) => id.clone(),
+            _ => return Err(errors::ConnectorError::MissingRequiredField { field_name: "connector_transaction_id" }.into()),
+        };
         Ok(Self {
             amount: item.amount.to_owned(),
+            currency,
+            payment_id,
         })
     }
 }
@@ -188,11 +200,13 @@ impl From<RefundStatus> for enums::RefundStatus {
     }
 }
 
-//TODO: Fill the struct with respective fields
 #[derive(Default, Debug, Clone, Serialize, Deserialize)]
 pub struct RefundResponse {
-    id: String,
-    status: RefundStatus,
+    pub id: String,
+    pub status: RefundStatus,
+    pub amount: Option<StringMinorUnit>,
+    pub currency: Option<String>,
+    pub payment_id: Option<String>,
 }
 
 impl TryFrom<RefundsResponseRouterData<Execute, RefundResponse>> for RefundsRouterData<Execute> {

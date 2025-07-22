@@ -104,11 +104,8 @@ impl ConnectorCommon for Demopay {
     }
 
     fn get_currency_unit(&self) -> api::CurrencyUnit {
-        api::CurrencyUnit::Minor;
-        todo!()
-        //    TODO! Check connector documentation, on which unit they are processing the currency.
-        //    If the connector accepts amount in lower unit ( i.e cents for USD) then return api::CurrencyUnit::Minor,
-        //    if connector accepts amount in base unit (i.e dollars for USD) then return api::CurrencyUnit::Base
+        // DemoPay accepts amount in minor units (cents)
+        api::CurrencyUnit::Minor
     }
 
     fn common_get_content_type(&self) -> &'static str {
@@ -208,9 +205,9 @@ impl ConnectorIntegration<Authorize, PaymentsAuthorizeData, PaymentsResponseData
     fn get_url(
         &self,
         _req: &PaymentsAuthorizeRouterData,
-        _connectors: &Connectors,
+        connectors: &Connectors,
     ) -> CustomResult<String, errors::ConnectorError> {
-        Err(errors::ConnectorError::NotImplemented("get_url method".to_string()).into())
+        Ok(format!("{}/payments", self.base_url(connectors)))
     }
 
     fn get_request_body(
@@ -294,10 +291,14 @@ impl ConnectorIntegration<PSync, PaymentsSyncData, PaymentsResponseData> for Dem
 
     fn get_url(
         &self,
-        _req: &PaymentsSyncRouterData,
-        _connectors: &Connectors,
+        req: &PaymentsSyncRouterData,
+        connectors: &Connectors,
     ) -> CustomResult<String, errors::ConnectorError> {
-        Err(errors::ConnectorError::NotImplemented("get_url method".to_string()).into())
+        let txn_id = match &req.connector_transaction_id {
+            types::ResponseId::ConnectorTransactionId(ref id) => id,
+            _ => return Err(errors::ConnectorError::MissingRequiredField { field_name: "connector_transaction_id" }.into()),
+        };
+        Ok(format!("{}/payments/{}", self.base_url(connectors), txn_id))
     }
 
     fn build_request(
@@ -358,18 +359,26 @@ impl ConnectorIntegration<Capture, PaymentsCaptureData, PaymentsResponseData> fo
 
     fn get_url(
         &self,
-        _req: &PaymentsCaptureRouterData,
-        _connectors: &Connectors,
+        req: &PaymentsCaptureRouterData,
+        connectors: &Connectors,
     ) -> CustomResult<String, errors::ConnectorError> {
-        Err(errors::ConnectorError::NotImplemented("get_url method".to_string()).into())
+        let txn_id = match &req.connector_transaction_id {
+            types::ResponseId::ConnectorTransactionId(ref id) => id,
+            _ => return Err(errors::ConnectorError::MissingRequiredField { field_name: "connector_transaction_id" }.into()),
+        };
+        Ok(format!("{}/payments/{}/capture", self.base_url(connectors), txn_id))
     }
 
     fn get_request_body(
         &self,
-        _req: &PaymentsCaptureRouterData,
+        req: &PaymentsCaptureRouterData,
         _connectors: &Connectors,
     ) -> CustomResult<RequestContent, errors::ConnectorError> {
-        Err(errors::ConnectorError::NotImplemented("get_request_body method".to_string()).into())
+        let amount = req.amount_to_capture.unwrap_or(req.amount);
+        let req_body = serde_json::json!({
+            "amount": amount,
+        });
+        Ok(RequestContent::Json(Box::new(req_body)))
     }
 
     fn build_request(
@@ -436,12 +445,12 @@ impl ConnectorIntegration<Execute, RefundsData, RefundsResponseData> for Demopay
     }
 
     fn get_url(
-        &self,
-        _req: &RefundsRouterData<Execute>,
-        _connectors: &Connectors,
-    ) -> CustomResult<String, errors::ConnectorError> {
-        Err(errors::ConnectorError::NotImplemented("get_url method".to_string()).into())
-    }
+    &self,
+    _req: &PaymentsAuthorizeRouterData,
+    connectors: &Connectors,
+) -> CustomResult<String, errors::ConnectorError> {
+    Ok(format!("{}/payments", self.base_url(connectors)))
+}
 
     fn get_request_body(
         &self,
@@ -521,10 +530,14 @@ impl ConnectorIntegration<RSync, RefundsData, RefundsResponseData> for Demopay {
 
     fn get_url(
         &self,
-        _req: &RefundSyncRouterData,
-        _connectors: &Connectors,
+        req: &RefundSyncRouterData,
+        connectors: &Connectors,
     ) -> CustomResult<String, errors::ConnectorError> {
-        Err(errors::ConnectorError::NotImplemented("get_url method".to_string()).into())
+        let refund_id = match &req.connector_refund_id {
+            Some(id) => id,
+            None => return Err(errors::ConnectorError::MissingRequiredField { field_name: "connector_refund_id" }.into()),
+        };
+        Ok(format!("{}/refunds/{}", self.base_url(connectors), refund_id))
     }
 
     fn build_request(

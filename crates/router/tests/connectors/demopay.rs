@@ -36,11 +36,23 @@ impl utils::Connector for DemopayTest {
 static CONNECTOR: DemopayTest = DemopayTest {};
 
 fn get_default_payment_info() -> Option<utils::PaymentInfo> {
-    None
+    Some(utils::PaymentInfo {
+        // Fill with default info as required by your test harness
+        ..Default::default()
+    })
 }
 
 fn payment_method_details() -> Option<types::PaymentsAuthorizeData> {
-    None
+    Some(types::PaymentsAuthorizeData {
+        payment_method_data: types::api::PaymentMethodData::Wallet(
+            types::api::WalletData::DemoPayWallet {
+                wallet_id: "demo_wallet_id".to_string(), // Update this if your wallet structure is different
+            }
+        ),
+        currency: "USD".to_string(),
+        amount: 1000, // 10.00 USD in minor units
+        ..Default::default()
+    })
 }
 
 // Cards Positive Tests
