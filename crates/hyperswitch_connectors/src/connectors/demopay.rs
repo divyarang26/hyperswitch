@@ -295,7 +295,7 @@ impl ConnectorIntegration<PSync, PaymentsSyncData, PaymentsResponseData> for Dem
         req: &PaymentsSyncRouterData,
         connectors: &Connectors,
     ) -> CustomResult<String, errors::ConnectorError> {
-        let txn_id = match &req.connector_transaction_id {
+        let txn_id = match &req.request.connector_transaction_id {
             ResponseId::ConnectorTransactionId(ref id) => id,
             _ => return Err(errors::ConnectorError::MissingRequiredField { field_name: "connector_transaction_id" }.into()),
         };
@@ -363,7 +363,7 @@ impl ConnectorIntegration<Capture, PaymentsCaptureData, PaymentsResponseData> fo
         req: &PaymentsCaptureRouterData,
         connectors: &Connectors,
     ) -> CustomResult<String, errors::ConnectorError> {
-        let txn_id = match &req.connector_transaction_id {
+        let txn_id = match &req.request.connector_transaction_id {
             ResponseId::ConnectorTransactionId(ref id) => id,
             _ => return Err(errors::ConnectorError::MissingRequiredField { field_name: "connector_transaction_id" }.into()),
         };
@@ -375,7 +375,7 @@ impl ConnectorIntegration<Capture, PaymentsCaptureData, PaymentsResponseData> fo
         req: &PaymentsCaptureRouterData,
         _connectors: &Connectors,
     ) -> CustomResult<RequestContent, errors::ConnectorError> {
-        let amount = req.amount_to_capture.unwrap_or(req.amount);
+        let amount = req.request.amount_to_capture.unwrap_or(req.request.amount);
         let req_body = serde_json::json!({
             "amount": amount,
         });
@@ -534,7 +534,7 @@ impl ConnectorIntegration<RSync, RefundsData, RefundsResponseData> for Demopay {
         req: &RefundSyncRouterData,
         connectors: &Connectors,
     ) -> CustomResult<String, errors::ConnectorError> {
-        let refund_id = match &req.connector_refund_id {
+        let refund_id = match &req.request.connector_refund_id {
             Some(id) => id,
             None => return Err(errors::ConnectorError::MissingRequiredField { field_name: "connector_refund_id" }.into()),
         };
