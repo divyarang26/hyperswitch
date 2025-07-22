@@ -350,7 +350,7 @@ async fn should_fail_for_refund_amount_higher_than_payment_amount() {
             get_default_payment_info(),
         )
         .await;
-    assert!(response.is_ok() || response.is_err());
+    assert!(response.is_ok());
 }
 
 // Connector dependent test cases goes here
