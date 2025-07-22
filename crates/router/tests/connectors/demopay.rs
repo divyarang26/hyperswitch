@@ -108,7 +108,7 @@ async fn should_only_authorize_payment() {
     assert_eq!(response.status, enums::AttemptStatus::Authorized);
 }
 
-Captures a payment using the manual capture flow (Non 3DS).
+
 #[actix_web::test]
 async fn should_capture_authorized_payment() {
     let response = CONNECTOR
