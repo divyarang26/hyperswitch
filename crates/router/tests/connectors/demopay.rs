@@ -3,7 +3,6 @@ use common_utils::pii::Email;
 use common_utils::crypto::Encryptable;
 use masking::Secret;
 use router::types::{self, api, storage::enums};
-use test_utils::connector_auth;
 
 
 use crate::utils::{self, ConnectorActions};
@@ -23,12 +22,13 @@ impl utils::Connector for DemopayTest {
     }
 
     fn get_auth_token(&self) -> types::ConnectorAuthType {
-        utils::to_connector_auth_type(
-            connector_auth::ConnectorAuthentication::new()
-                .demopay
-                .expect("Missing connector authentication configuration")
-                .into(),
-        )
+        use router::types::{ConnectorAuthType, Secret};
+        ConnectorAuthType::HeaderKey {
+            api_key: Some(Secret::new("dummy".to_string())),
+            key1: None,
+            api_secret: Some(Secret::new("Secret key".to_string())),
+            key2: None,
+        }
     }
 
     fn get_name(&self) -> String {
