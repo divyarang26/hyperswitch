@@ -183,8 +183,9 @@ async fn should_refund_manually_captured_payment() {
             get_default_payment_info(),
         )
         .await;
-    assert_eq!(response.unwrap().status, enums::AttemptStatus::Charged);
-    assert_eq!(response.unwrap().response.unwrap().refund_status, enums::RefundStatus::Success);
+    let resp_data = response.unwrap();
+    assert_eq!(resp_data.status, enums::AttemptStatus::Charged);
+    assert_eq!(resp_data.response.unwrap().refund_status, enums::RefundStatus::Success);
 }
 
 // Partially refunds a payment using the manual capture flow (Non 3DS).
@@ -201,8 +202,10 @@ async fn should_partially_refund_manually_captured_payment() {
             get_default_payment_info(),
         )
         .await;
-    assert_eq!(response.unwrap().status, enums::AttemptStatus::Charged);
-    assert_eq!(response.unwrap().response.unwrap().refund_status, enums::RefundStatus::Success);
+    let resp_data = response.unwrap();
+    assert_eq!(resp_data.status, enums::AttemptStatus::Charged);
+    assert_eq!(resp_data.response.unwrap().refund_status, enums::RefundStatus::Success);
+   
 }
 
 // Synchronizes a refund using the manual capture flow (Non 3DS).
