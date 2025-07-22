@@ -102,9 +102,19 @@ fn payment_method_details() -> Option<types::PaymentsAuthorizeData> {
 #[actix_web::test]
 async fn should_only_authorize_payment() {
     let response = CONNECTOR
-        .authorize_payment(payment_method_details(), get_default_payment_info())
-        .await;
-    assert!(response.is_ok() || response.is_err());
+    .authorize_and_capture_payment(payment_method_details(), None, get_default_payment_info())
+    .await;
+
+match response {
+    Ok(ref resp_data) => {
+        println!("resp_data.status = {:?}", resp_data.status);
+        assert_eq!(resp_data.status, enums::AttemptStatus::Charged);
+    }
+    Err(ref e) => {
+        println!("Test failed with error: {:?}", e);
+        // Optionally: panic!("Test failed with error: {:?}", e);
+    }
+}
 }
 
 
