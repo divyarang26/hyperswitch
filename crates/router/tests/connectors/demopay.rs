@@ -25,7 +25,7 @@ impl utils::Connector for DemopayTest {
         use router::types::ConnectorAuthType;
         use masking::Secret;
         ConnectorAuthType::HeaderKey {
-            api_key: Some(Secret::new("dummy".to_string())),
+            api_key: Secret::new("dummy".to_string()),
         }
     }
 
