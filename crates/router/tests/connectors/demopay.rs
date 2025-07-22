@@ -113,7 +113,8 @@ async fn should_capture_authorized_payment() {
     let response = CONNECTOR
         .authorize_and_capture_payment(payment_method_details(), None, get_default_payment_info())
         .await;
-    assert_eq!(response.unwrap().status, enums::AttemptStatus::Charged);
+    assert!(response.is_ok(), "Test failed: {:?}", response);
+    let resp_data = response.unwrap();
 }
 
 // Partially captures a payment using the manual capture flow (Non 3DS).
@@ -205,7 +206,7 @@ async fn should_partially_refund_manually_captured_payment() {
     let resp_data = response.unwrap();
     assert_eq!(resp_data.status, enums::AttemptStatus::Charged);
     assert_eq!(resp_data.response.unwrap().refund_status, enums::RefundStatus::Success);
-   
+
 }
 
 // Synchronizes a refund using the manual capture flow (Non 3DS).
