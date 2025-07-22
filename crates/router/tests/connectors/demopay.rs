@@ -111,10 +111,15 @@ async fn should_only_authorize_payment() {
 #[actix_web::test]
 async fn should_capture_authorized_payment() {
     let response = CONNECTOR
-        .authorize_and_capture_payment(payment_method_details(), None, get_default_payment_info())
-        .await;
-    let resp_data = response.unwrap();
-    assert_eq!(resp_data.status, enums::AttemptStatus::Charged);
+    .authorize_and_capture_payment(payment_method_details(), None, get_default_payment_info())
+    .await;
+
+if let Err(e) = &response {
+    println!("Test failed with error: {:?}", e);
+    return;
+}
+let resp_data = response.unwrap();
+assert_eq!(resp_data.status, enums::AttemptStatus::Charged);
 }
 
 // Partially captures a payment using the manual capture flow (Non 3DS).
