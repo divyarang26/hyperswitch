@@ -115,7 +115,9 @@ async fn should_capture_authorized_payment() {
     .await;
 
 
-let resp_data = response;
+let resp_data = response.unwrap();
+println!("resp_data.status = {:?}", resp_data.status);
+
 assert_eq!(resp_data.status, enums::AttemptStatus::Charged);
 }
 
