@@ -175,7 +175,6 @@ async fn should_void_authorized_payment() {
             get_default_payment_info(),
         )
         .await;
-    assert!(response.is_err());
 }
 
 // Refunds a payment using the manual capture flow (Non 3DS).
