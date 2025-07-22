@@ -22,12 +22,10 @@ impl utils::Connector for DemopayTest {
     }
 
     fn get_auth_token(&self) -> types::ConnectorAuthType {
-        use router::types::{ConnectorAuthType, Secret};
+        use router::types::ConnectorAuthType;
+        use masking::Secret;
         ConnectorAuthType::HeaderKey {
             api_key: Some(Secret::new("dummy".to_string())),
-            key1: None,
-            api_secret: Some(Secret::new("Secret key".to_string())),
-            key2: None,
         }
     }
 
