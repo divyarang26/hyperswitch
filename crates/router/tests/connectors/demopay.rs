@@ -112,8 +112,8 @@ async fn should_only_authorize_payment() {
 async fn should_capture_authorized_payment() {
     let response = CONNECTOR
         .authorize_and_capture_payment(payment_method_details(), None, get_default_payment_info())
-        .await
-    assert_eq!(response.status, enums::AttemptStatus::Charged);
+        .await;
+    assert_eq!(response.unwrap().status, enums::AttemptStatus::Charged);
 }
 
 // Partially captures a payment using the manual capture flow (Non 3DS).
@@ -138,9 +138,8 @@ async fn should_partially_capture_authorized_payment() {
 async fn should_sync_authorized_payment() {
     let authorize_response = CONNECTOR
         .authorize_payment(payment_method_details(), get_default_payment_info())
-        .await
-        
-    let txn_id = utils::get_connector_transaction_id(authorize_response.response);
+        .await;
+    let txn_id = utils::get_connector_transaction_id(authorize_response.as_ref().unwrap().response.clone());
     let response = CONNECTOR
         .psync_retry_till_status_matches(
             enums::AttemptStatus::Authorized,
@@ -183,10 +182,9 @@ async fn should_refund_manually_captured_payment() {
             None,
             get_default_payment_info(),
         )
-        .await
-        
-    assert_eq!(response.status, enums::AttemptStatus::Charged);
-    assert_eq!(response.response.unwrap().refund_status, enums::RefundStatus::Success);
+        .await;
+    assert_eq!(response.unwrap().status, enums::AttemptStatus::Charged);
+    assert_eq!(response.unwrap().response.unwrap().refund_status, enums::RefundStatus::Success);
 }
 
 // Partially refunds a payment using the manual capture flow (Non 3DS).
@@ -202,10 +200,9 @@ async fn should_partially_refund_manually_captured_payment() {
             }),
             get_default_payment_info(),
         )
-        .await
-        
-    assert_eq!(response.status, enums::AttemptStatus::Charged);
-    assert_eq!(response.response.unwrap().refund_status, enums::RefundStatus::Success);
+        .await;
+    assert_eq!(response.unwrap().status, enums::AttemptStatus::Charged);
+    assert_eq!(response.unwrap().response.unwrap().refund_status, enums::RefundStatus::Success);
 }
 
 // Synchronizes a refund using the manual capture flow (Non 3DS).
@@ -227,10 +224,9 @@ async fn should_sync_manually_captured_refund() {
             None,
             get_default_payment_info(),
         )
-        .await
-        
-    assert_eq!(response.status, enums::AttemptStatus::Charged);
-    assert_eq!(response.response.unwrap().refund_status, enums::RefundStatus::Success);
+        .await;
+    assert_eq!(response.as_ref().unwrap().status, enums::AttemptStatus::Charged);
+    assert_eq!(response.unwrap().response.unwrap().refund_status, enums::RefundStatus::Success);
 }
 
 // Creates a payment using the automatic capture flow (Non 3DS).
