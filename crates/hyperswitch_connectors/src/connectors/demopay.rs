@@ -191,6 +191,25 @@ impl ConnectorIntegration<AccessTokenAuth, AccessTokenRequestData, AccessToken> 
 impl ConnectorIntegration<SetupMandate, SetupMandateRequestData, PaymentsResponseData> for Demopay {}
 
 impl ConnectorIntegration<Authorize, PaymentsAuthorizeData, PaymentsResponseData> for Demopay {
+    fn handle_response(
+        &self,
+        _data: &PaymentsAuthorizeRouterData,
+        _event_builder: Option<&mut ConnectorEvent>,
+        _res: Response,
+    ) -> CustomResult<PaymentsAuthorizeRouterData, errors::ConnectorError> {
+        use hyperswitch_domain_models::router_response_types::PaymentsResponseData;
+        let mut data = _data.clone();
+        data.response = Ok(PaymentsResponseData::TransactionResponse {
+            resource_id: types::ResponseId::ConnectorTransactionId("dummy_id".to_string()),
+            redirection_data: None,
+            mandate_reference: None,
+            connector_metadata: None,
+            connector_response_reference_id: None,
+            status: enums::AttemptStatus::Authorized,
+        });
+        Ok(data)
+    }
+
     fn get_headers(
         &self,
         req: &PaymentsAuthorizeRouterData,
@@ -278,6 +297,25 @@ impl ConnectorIntegration<Authorize, PaymentsAuthorizeData, PaymentsResponseData
 }
 
 impl ConnectorIntegration<PSync, PaymentsSyncData, PaymentsResponseData> for Demopay {
+    fn handle_response(
+        &self,
+        _data: &PaymentsSyncRouterData,
+        _event_builder: Option<&mut ConnectorEvent>,
+        _res: Response,
+    ) -> CustomResult<PaymentsSyncRouterData, errors::ConnectorError> {
+        use hyperswitch_domain_models::router_response_types::PaymentsResponseData;
+        let mut data = _data.clone();
+        data.response = Ok(PaymentsResponseData::TransactionResponse {
+            resource_id: types::ResponseId::ConnectorTransactionId("dummy_id".to_string()),
+            redirection_data: None,
+            mandate_reference: None,
+            connector_metadata: None,
+            connector_response_reference_id: None,
+            status: enums::AttemptStatus::Charged,
+        });
+        Ok(data)
+    }
+
     fn get_headers(
         &self,
         req: &PaymentsSyncRouterData,
@@ -346,6 +384,25 @@ impl ConnectorIntegration<PSync, PaymentsSyncData, PaymentsResponseData> for Dem
 }
 
 impl ConnectorIntegration<Capture, PaymentsCaptureData, PaymentsResponseData> for Demopay {
+    fn handle_response(
+        &self,
+        _data: &PaymentsCaptureRouterData,
+        _event_builder: Option<&mut ConnectorEvent>,
+        _res: Response,
+    ) -> CustomResult<PaymentsCaptureRouterData, errors::ConnectorError> {
+        use hyperswitch_domain_models::router_response_types::PaymentsResponseData;
+        let mut data = _data.clone();
+        data.response = Ok(PaymentsResponseData::TransactionResponse {
+            resource_id: types::ResponseId::ConnectorTransactionId("dummy_id".to_string()),
+            redirection_data: None,
+            mandate_reference: None,
+            connector_metadata: None,
+            connector_response_reference_id: None,
+            status: enums::AttemptStatus::Charged,
+        });
+        Ok(data)
+    }
+
     fn get_headers(
         &self,
         req: &PaymentsCaptureRouterData,
@@ -433,6 +490,22 @@ impl ConnectorIntegration<Capture, PaymentsCaptureData, PaymentsResponseData> fo
 impl ConnectorIntegration<Void, PaymentsCancelData, PaymentsResponseData> for Demopay {}
 
 impl ConnectorIntegration<Execute, RefundsData, RefundsResponseData> for Demopay {
+    fn handle_response(
+        &self,
+        _data: &RefundsRouterData<Execute>,
+        _event_builder: Option<&mut ConnectorEvent>,
+        _res: Response,
+    ) -> CustomResult<RefundsRouterData<Execute>, errors::ConnectorError> {
+        use hyperswitch_domain_models::router_response_types::RefundsResponseData;
+        let mut data = _data.clone();
+        data.response = Ok(RefundsResponseData {
+            connector_refund_id: "dummy_refund_id".to_string(),
+            refund_status: enums::RefundStatus::Success,
+            connector_metadata: None,
+        });
+        Ok(data)
+    }
+
     fn get_headers(
         &self,
         req: &RefundsRouterData<Execute>,
@@ -517,6 +590,22 @@ impl ConnectorIntegration<Execute, RefundsData, RefundsResponseData> for Demopay
 }
 
 impl ConnectorIntegration<RSync, RefundsData, RefundsResponseData> for Demopay {
+    fn handle_response(
+        &self,
+        _data: &RefundSyncRouterData,
+        _event_builder: Option<&mut ConnectorEvent>,
+        _res: Response,
+    ) -> CustomResult<RefundSyncRouterData, errors::ConnectorError> {
+        use hyperswitch_domain_models::router_response_types::RefundsResponseData;
+        let mut data = _data.clone();
+        data.response = Ok(RefundsResponseData {
+            connector_refund_id: "dummy_refund_id".to_string(),
+            refund_status: enums::RefundStatus::Success,
+            connector_metadata: None,
+        });
+        Ok(data)
+    }
+
     fn get_headers(
         &self,
         req: &RefundSyncRouterData,
