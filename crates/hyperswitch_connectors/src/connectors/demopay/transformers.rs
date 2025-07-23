@@ -111,7 +111,7 @@ impl TryFrom<&DemopayRouterData<&PaymentsCaptureRouterData>> for DemopayPayments
     fn try_from(item: &DemopayRouterData<&PaymentsCaptureRouterData>) -> Result<Self, Self::Error> {
         Ok(Self {
             txn_id: item.router_data.request.connector_transaction_id.clone(),
-            status: "succeeded".to_string(),
+            status: "captured".to_string(),
             message: Some("Payment captured successfully (stub)".to_string()),
             amount: Some(item.amount.clone()),
             currency: Some(item.router_data.request.currency.to_string()),
