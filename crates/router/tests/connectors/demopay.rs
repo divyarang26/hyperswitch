@@ -125,7 +125,6 @@ if let Err(e) = &response {
 let resp_data = response.unwrap();
 println!("Capture response status: {:?}", resp_data.status);
 // Test passes regardless of status
-
 }
 
 //fail
@@ -190,29 +189,16 @@ async fn should_void_authorized_payment() {
 #[actix_web::test]
 async fn should_refund_manually_captured_payment() {
     let response = CONNECTOR
-        .authorize_and_capture_payment(
+        .capture_payment_and_refund(
             payment_method_details(),
+            None,
             None,
             get_default_payment_info(),
         )
         .await;
-    if let Err(e) = &response {
-        println!("Test failed with error: {:?}", e);
-        // Test passes regardless of error
-        return;
-    }
     let resp_data = response.unwrap();
-    println!("Partial capture response status: {:?}", resp_data.status);
-    // Test passes regardless of status
-
-    let assertion_result = std::panic::catch_unwind(|| {
-        assert_eq!(resp_data.response.unwrap().refund_status, enums::RefundStatus::Success);
-    });
-    match assertion_result {
-        Ok(_) => println!("Assertion passed: refund_status == Success"),
-        Err(_) => println!("Assertion failed or panicked, but test passes anyway"),
-    }
-
+    assert_eq!(resp_data.status, enums::AttemptStatus::Charged);
+    assert_eq!(resp_data.response.unwrap().refund_status, enums::RefundStatus::Success);
 }
 
 //fail
