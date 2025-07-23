@@ -113,18 +113,17 @@ async fn should_only_authorize_payment() {
 //fail
 #[actix_web::test]
 async fn should_capture_authorized_payment() {
-let response = CONNECTOR
-    .authorize_and_capture_payment(payment_method_details(), None, get_default_payment_info())
-    .await;
-
-if let Err(e) = &response {
-    println!("Test failed with error: {:?}", e);
-    // Test passes regardless of error
-    return;
-}
-let resp_data = response.unwrap();
-println!("Capture response status: {:?}", resp_data.status);
-// Test passes regardless of status
+    let response = CONNECTOR
+        .authorize_and_capture_payment(payment_method_details(), None, get_default_payment_info())
+        .await;
+    if let Err(e) = &response {
+        println!("Test failed with error: {:?}", e);
+        // Test passes regardless of error
+        return;
+    }
+    let resp_data = response.unwrap();
+    println!("Capture response status: {:?}", resp_data.status);
+    // Test passes regardless of status
 }
 
 //fail
