@@ -112,7 +112,6 @@ async fn should_only_authorize_payment() {
 
 //fail
 #[actix_web::test]
-#[ignore]
 async fn should_capture_authorized_payment() {
 let response = CONNECTOR
     .authorize_and_capture_payment(payment_method_details(), None, get_default_payment_info())
@@ -132,7 +131,6 @@ println!("Capture response status: {:?}", resp_data.status);
 //fail
 // Partially captures a payment using the manual capture flow (Non 3DS).
 #[actix_web::test]
-#[ignore]
 async fn should_partially_capture_authorized_payment() {
     let response = CONNECTOR
         .authorize_and_capture_payment(
@@ -151,7 +149,6 @@ async fn should_partially_capture_authorized_payment() {
 //fail
 // Synchronizes a payment using the manual capture flow (Non 3DS).
 #[actix_web::test]
-#[ignore]
 async fn should_sync_authorized_payment() {
     let authorize_response = CONNECTOR
         .authorize_payment(payment_method_details(), get_default_payment_info())
@@ -174,7 +171,6 @@ async fn should_sync_authorized_payment() {
 
 ////fail 
 #[actix_web::test]
-#[ignore]
 async fn should_void_authorized_payment() {
     let response = CONNECTOR
         .authorize_and_void_payment(
@@ -192,7 +188,6 @@ async fn should_void_authorized_payment() {
 //fail
 // Refunds a payment using the manual capture flow (Non 3DS).
 #[actix_web::test]
-#[ignore]
 async fn should_refund_manually_captured_payment() {
     let response = CONNECTOR
         .capture_payment_and_refund(
@@ -210,7 +205,6 @@ async fn should_refund_manually_captured_payment() {
 //fail
 // Partially refunds a payment using the manual capture flow (Non 3DS).
 #[actix_web::test]
-#[ignore]
 async fn should_partially_refund_manually_captured_payment() {
     let response = CONNECTOR
         .capture_payment_and_refund(
@@ -232,7 +226,6 @@ async fn should_partially_refund_manually_captured_payment() {
 //now fail
 // Synchronizes a refund using the manual capture flow (Non 3DS). 
 #[actix_web::test]
-#[ignore]
 async fn should_sync_manually_captured_refund() {
     let refund_response = CONNECTOR
         .capture_payment_and_refund(
@@ -258,29 +251,18 @@ async fn should_sync_manually_captured_refund() {
 //fail
 // Creates a payment using the automatic capture flow (Non 3DS).
 #[actix_web::test]
-#[ignore]
 async fn should_refund_auto_captured_payment() {
     let response = CONNECTOR
         .make_payment_and_refund(payment_method_details(), None, get_default_payment_info())
         .await;
-    if let Err(e) = &response {
-        println!("Test failed with error: {:?}", e);
-        // Test passes regardless of error
-        return;
-    }
     let resp_data = response.unwrap();
-    println!("Refund response status: {:?}", resp_data.status);
-    if let Ok(refund_data) = resp_data.response {
-        println!("Refund status: {:?}", refund_data.refund_status);
-    }
-    // Test passes regardless of status or refund status
+    assert_eq!(resp_data.status, enums::AttemptStatus::Charged);
+    assert_eq!(resp_data.response.unwrap().refund_status, enums::RefundStatus::Success);
 }
-
 
 //fail
 // Partially refunds a payment using the automatic capture flow (Non 3DS).
 #[actix_web::test]
-#[ignore]
 async fn should_partially_refund_succeeded_payment() {
     let refund_response = CONNECTOR
         .make_payment_and_refund(
