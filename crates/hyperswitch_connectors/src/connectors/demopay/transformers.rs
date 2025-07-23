@@ -105,9 +105,11 @@ pub enum DemopayPaymentStatus {
 }
 
 // Always-successful capture response for Demopay
-impl TryFrom<&DemopayRouterData<&crate::types::PaymentsCaptureRouterData>> for DemopayPaymentsResponse {
+use hyperswitch_domain_models::types::PaymentsCaptureRouterData;
+
+impl TryFrom<&DemopayRouterData<&PaymentsCaptureRouterData>> for DemopayPaymentsResponse {
     type Error = error_stack::Report<errors::ConnectorError>;
-    fn try_from(item: &DemopayRouterData<&crate::types::PaymentsCaptureRouterData>) -> Result<Self, Self::Error> {
+    fn try_from(item: &DemopayRouterData<&PaymentsCaptureRouterData>) -> Result<Self, Self::Error> {
         Ok(Self {
             txn_id: item.router_data.request.connector_transaction_id.clone(),
             status: "captured".to_string(),
@@ -119,9 +121,10 @@ impl TryFrom<&DemopayRouterData<&crate::types::PaymentsCaptureRouterData>> for D
 }
 
 // Always-successful refund response for Demopay
-impl TryFrom<&DemopayRouterData<&crate::types::RefundsRouterData<Execute>>> for RefundResponse {
+
+impl TryFrom<&DemopayRouterData<&RefundsRouterData<Execute>>> for RefundResponse {
     type Error = error_stack::Report<errors::ConnectorError>;
-    fn try_from(item: &DemopayRouterData<&crate::types::RefundsRouterData<Execute>>) -> Result<Self, Self::Error> {
+    fn try_from(item: &DemopayRouterData<&RefundsRouterData<Execute>>) -> Result<Self, Self::Error> {
         Ok(Self {
             id: format!("refund-{}", item.router_data.request.connector_transaction_id),
             status: RefundStatus::Succeeded,
@@ -132,11 +135,18 @@ impl TryFrom<&DemopayRouterData<&crate::types::RefundsRouterData<Execute>>> for 
     }
 }
 
-    Authorized,
-    Captured,
-    Failed,
-    #[default]
-    Processing,
+impl TryFrom<&DemopayRouterData<&RefundsRouterData<RSync>>> for RefundResponse {
+    type Error = error_stack::Report<errors::ConnectorError>;
+    fn try_from(item: &DemopayRouterData<&RefundsRouterData<RSync>>) -> Result<Self, Self::Error> {
+        Ok(Self {
+            id: format!("refund-{}", item.router_data.request.connector_transaction_id),
+            status: RefundStatus::Succeeded,
+            amount: Some(item.amount.clone()),
+            currency: Some(item.router_data.request.currency.to_string()),
+            payment_id: Some(item.router_data.request.connector_transaction_id.clone()),
+        })
+    }
+}
 
 
 impl From<DemopayPaymentStatus> for common_enums::AttemptStatus {
@@ -289,4 +299,12 @@ impl TryFrom<RefundsResponseRouterData<RSync, RefundResponse>> for RefundsRouter
 
 
 //TODO: Fill the struct with respective fields
+
+
+
+
+
+
+    
+
 
