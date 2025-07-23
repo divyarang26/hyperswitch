@@ -104,6 +104,41 @@ pub enum DemopayPaymentStatus {
     Processing,
 }
 
+// Always-successful capture response for Demopay
+impl TryFrom<&DemopayRouterData<&crate::types::PaymentsCaptureRouterData>> for DemopayPaymentsResponse {
+    type Error = error_stack::Report<errors::ConnectorError>;
+    fn try_from(item: &DemopayRouterData<&crate::types::PaymentsCaptureRouterData>) -> Result<Self, Self::Error> {
+        Ok(Self {
+            txn_id: item.router_data.request.connector_transaction_id.clone(),
+            status: "captured".to_string(),
+            message: Some("Payment captured successfully (stub)".to_string()),
+            amount: Some(item.amount.clone()),
+            currency: Some(item.router_data.request.currency.to_string()),
+        })
+    }
+}
+
+// Always-successful refund response for Demopay
+impl TryFrom<&DemopayRouterData<&crate::types::RefundsRouterData<Execute>>> for RefundResponse {
+    type Error = error_stack::Report<errors::ConnectorError>;
+    fn try_from(item: &DemopayRouterData<&crate::types::RefundsRouterData<Execute>>) -> Result<Self, Self::Error> {
+        Ok(Self {
+            id: format!("refund-{}", item.router_data.request.connector_transaction_id),
+            status: RefundStatus::Succeeded,
+            amount: Some(item.amount.clone()),
+            currency: Some(item.router_data.request.currency.to_string()),
+            payment_id: Some(item.router_data.request.connector_transaction_id.clone()),
+        })
+    }
+}
+
+    Authorized,
+    Captured,
+    Failed,
+    #[default]
+    Processing,
+}
+
 impl From<DemopayPaymentStatus> for common_enums::AttemptStatus {
     fn from(item: DemopayPaymentStatus) -> Self {
         match item {
