@@ -259,11 +259,12 @@ impl TryFrom<RefundsResponseRouterData<Execute, RefundResponse>> for RefundsRout
     fn try_from(
         item: RefundsResponseRouterData<Execute, RefundResponse>,
     ) -> Result<Self, Self::Error> {
-        let status = match item.response.status.as_str() {
-            "succeeded" => enums::RefundStatus::Success,
-            "failed" => enums::RefundStatus::Failure,
-            _ => enums::RefundStatus::Pending,
-        };
+        // let status = match item.response.status.as_str() {
+        //     "succeeded" => enums::RefundStatus::Success,
+        //     "failed" => enums::RefundStatus::Failure,
+        //     _ => enums::RefundStatus::Pending,
+        // };
+        let status = enums::RefundStatus::from(item.response.status);
         Ok(Self {
             response: Ok(RefundsResponseData {
                 connector_refund_id: item.response.id.clone(),
