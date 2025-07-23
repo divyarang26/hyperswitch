@@ -101,6 +101,7 @@ fn payment_method_details() -> Option<types::PaymentsAuthorizeData> {
 
 // Cards Positive Tests
 // Creates a payment using the manual capture flow (Non 3DS).
+//pass
 #[actix_web::test]
 async fn should_only_authorize_payment() {
     let response = CONNECTOR
@@ -109,7 +110,7 @@ async fn should_only_authorize_payment() {
     assert!(response.is_ok() || response.is_err());
 }
 
-
+//fail
 #[actix_web::test]
 async fn should_capture_authorized_payment() {
 let response = CONNECTOR
@@ -121,9 +122,10 @@ if let Err(e) = &response {
     return;
 }
 let resp_data = response.unwrap();
-assert_eq!(resp_data.status, enums::AttemptStatus::Charged);
+assert_eq!(resp_data.status, enums::AttemptStatus::Charged);c
 }
 
+//fail
 // Partially captures a payment using the manual capture flow (Non 3DS).
 #[actix_web::test]
 async fn should_partially_capture_authorized_payment() {
@@ -141,6 +143,7 @@ async fn should_partially_capture_authorized_payment() {
     assert_eq!(resp_data.status, enums::AttemptStatus::Charged);
 }
 
+//fail
 // Synchronizes a payment using the manual capture flow (Non 3DS).
 #[actix_web::test]
 async fn should_sync_authorized_payment() {
@@ -163,7 +166,7 @@ async fn should_sync_authorized_payment() {
     assert!(response.is_ok() || response.is_err());
 }
 
-// Voids a payment using the manual capture flow (Non 3DS).
+////fail 
 #[actix_web::test]
 async fn should_void_authorized_payment() {
     let response = CONNECTOR
@@ -179,7 +182,7 @@ async fn should_void_authorized_payment() {
         .await;
     assert!(response.is_ok() || response.is_err());
 }
-
+//fail
 // Refunds a payment using the manual capture flow (Non 3DS).
 #[actix_web::test]
 async fn should_refund_manually_captured_payment() {
@@ -196,6 +199,7 @@ async fn should_refund_manually_captured_payment() {
     assert_eq!(resp_data.response.unwrap().refund_status, enums::RefundStatus::Success);
 }
 
+//fail
 // Partially refunds a payment using the manual capture flow (Non 3DS).
 #[actix_web::test]
 async fn should_partially_refund_manually_captured_payment() {
@@ -216,7 +220,8 @@ async fn should_partially_refund_manually_captured_payment() {
 
 }
 
-// Synchronizes a refund using the manual capture flow (Non 3DS).
+//now fail
+// Synchronizes a refund using the manual capture flow (Non 3DS). 
 #[actix_web::test]
 async fn should_sync_manually_captured_refund() {
     let refund_response = CONNECTOR
@@ -240,6 +245,7 @@ async fn should_sync_manually_captured_refund() {
     assert_eq!(response.unwrap().response.unwrap().refund_status, enums::RefundStatus::Success);
 }
 
+//fail
 // Creates a payment using the automatic capture flow (Non 3DS).
 #[actix_web::test]
 async fn should_refund_auto_captured_payment() {
@@ -251,6 +257,7 @@ async fn should_refund_auto_captured_payment() {
     assert_eq!(resp_data.response.unwrap().refund_status, enums::RefundStatus::Success);
 }
 
+//fail
 // Partially refunds a payment using the automatic capture flow (Non 3DS).
 #[actix_web::test]
 async fn should_partially_refund_succeeded_payment() {
@@ -267,6 +274,7 @@ async fn should_partially_refund_succeeded_payment() {
     assert!(refund_response.is_ok() || refund_response.is_err());
 }
 
+//pass
 // Cards Negative scenarios
 #[actix_web::test]
 async fn should_fail_payment_for_incorrect_cvc() {
@@ -285,6 +293,7 @@ async fn should_fail_payment_for_incorrect_cvc() {
     assert!(response.is_ok() || response.is_err());
 }
 
+//pass
 // Creates a payment with incorrect expiry month.
 #[actix_web::test]
 async fn should_fail_payment_for_invalid_exp_month() {
@@ -303,6 +312,7 @@ async fn should_fail_payment_for_invalid_exp_month() {
     assert!(response.is_ok() || response.is_err());
 }
 
+//pass
 // Creates a payment with incorrect expiry year.
 #[actix_web::test]
 async fn should_fail_payment_for_incorrect_expiry_year() {
@@ -320,7 +330,7 @@ async fn should_fail_payment_for_incorrect_expiry_year() {
         .await;
     assert!(response.is_ok() || response.is_err());
 }
-
+//pass
 // Voids a payment using automatic capture flow (Non 3DS).
 #[actix_web::test]
 async fn should_fail_void_payment_for_auto_capture() {
@@ -330,6 +340,7 @@ async fn should_fail_void_payment_for_auto_capture() {
     assert!(authorize_response.is_ok() || authorize_response.is_err());
 }
 
+//pass
 // Captures a payment using invalid connector payment id.
 #[actix_web::test]
 async fn should_fail_capture_for_invalid_payment() {
@@ -338,7 +349,7 @@ async fn should_fail_capture_for_invalid_payment() {
         .await;
     assert!(capture_response.is_ok() || capture_response.is_err());
 }
-
+//fail
 // Refunds a payment with refund amount higher than payment amount.
 #[actix_web::test]
 async fn should_fail_for_refund_amount_higher_than_payment_amount() {

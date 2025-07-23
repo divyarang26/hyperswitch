@@ -106,13 +106,12 @@ pub enum DemopayPaymentStatus {
 
 // Always-successful capture response for Demopay
 use hyperswitch_domain_models::types::PaymentsCaptureRouterData;
-
 impl TryFrom<&DemopayRouterData<&PaymentsCaptureRouterData>> for DemopayPaymentsResponse {
     type Error = error_stack::Report<errors::ConnectorError>;
     fn try_from(item: &DemopayRouterData<&PaymentsCaptureRouterData>) -> Result<Self, Self::Error> {
         Ok(Self {
             txn_id: item.router_data.request.connector_transaction_id.clone(),
-            status: "captured".to_string(),
+            status: "succeeded".to_string(),
             message: Some("Payment captured successfully (stub)".to_string()),
             amount: Some(item.amount.clone()),
             currency: Some(item.router_data.request.currency.to_string()),
@@ -120,7 +119,7 @@ impl TryFrom<&DemopayRouterData<&PaymentsCaptureRouterData>> for DemopayPayments
     }
 }
 
-// Always-successful refund response for Demopay
+
 
 impl TryFrom<&DemopayRouterData<&RefundsRouterData<Execute>>> for RefundResponse {
     type Error = error_stack::Report<errors::ConnectorError>;
