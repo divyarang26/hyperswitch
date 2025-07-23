@@ -122,7 +122,7 @@ if let Err(e) = &response {
     return;
 }
 let resp_data = response.unwrap();
-assert_eq!(resp_data.status, enums::AttemptStatus::Charged);c
+assert_eq!(resp_data.status, enums::AttemptStatus::Charged);
 }
 
 //fail
