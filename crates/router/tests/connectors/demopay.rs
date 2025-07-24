@@ -130,7 +130,7 @@ async fn should_only_authorize_payment() {
 // println!("Capture response status: {:?}", resp_data.status);
 // }
 
-
+//F
 #[actix_web::test]
 async fn should_capture_authorized_payment() {
     let response = CONNECTOR
@@ -147,7 +147,7 @@ async fn should_capture_authorized_payment() {
 
 
 
-//fail
+//F
 // Partially captures a payment using the manual capture flow (Non 3DS).
 #[actix_web::test]
 async fn should_partially_capture_authorized_payment() {
@@ -165,7 +165,7 @@ async fn should_partially_capture_authorized_payment() {
     assert_eq!(resp_data.status, enums::AttemptStatus::Charged);
 }
 
-//fail
+//F
 // Synchronizes a payment using the manual capture flow (Non 3DS).
 #[actix_web::test]
 async fn should_sync_authorized_payment() {
@@ -188,7 +188,7 @@ async fn should_sync_authorized_payment() {
     assert!(response.is_ok() || response.is_err());
 }
 
-////fail 
+//F
 #[actix_web::test]
 async fn should_void_authorized_payment() {
     let response = CONNECTOR
@@ -204,7 +204,7 @@ async fn should_void_authorized_payment() {
         .await;
     assert!(response.is_ok() || response.is_err());
 }
-//fail
+//F
 // Refunds a payment using the manual capture flow (Non 3DS).
 #[actix_web::test]
 async fn should_refund_manually_captured_payment() {
@@ -221,7 +221,7 @@ async fn should_refund_manually_captured_payment() {
     assert_eq!(resp_data.response.unwrap().refund_status, enums::RefundStatus::Success);
 }
 
-//fail
+//F
 // Partially refunds a payment using the manual capture flow (Non 3DS).
 #[actix_web::test]
 async fn should_partially_refund_manually_captured_payment() {
@@ -242,7 +242,7 @@ async fn should_partially_refund_manually_captured_payment() {
 
 }
 
-//now fail
+//F
 // Synchronizes a refund using the manual capture flow (Non 3DS). 
 #[actix_web::test]
 async fn should_sync_manually_captured_refund() {
@@ -267,7 +267,7 @@ async fn should_sync_manually_captured_refund() {
     assert_eq!(response.unwrap().response.unwrap().refund_status, enums::RefundStatus::Success);
 }
 
-//fail
+//F
 // Creates a payment using the automatic capture flow (Non 3DS).
 #[actix_web::test]
 async fn should_refund_auto_captured_payment() {
@@ -278,32 +278,6 @@ async fn should_refund_auto_captured_payment() {
     assert_eq!(resp_data.status, enums::AttemptStatus::Charged);
     assert_eq!(resp_data.response.unwrap().refund_status, enums::RefundStatus::Success);
 }
-
-//pass
-// Partially refunds a payment using the automatic capture flow (Non 3DS).
-#[actix_web::test]
-async fn should_partially_refund_succeeded_payment() {
-    let result = std::panic::AssertUnwindSafe(async {
-        let refund_response = CONNECTOR
-            .make_payment_and_refund(
-                payment_method_details(),
-                Some(types::RefundsData {
-                    refund_amount: 50,
-                    ..utils::PaymentRefundType::default().0
-                }),
-                get_default_payment_info(),
-            )
-            .await;
-        
-        println!("Refund response: {:?}", refund_response);
-        true 
-    })
-    .catch_unwind()
-    .await;
-    // assert!(result.is_ok(),"Test panicked: {:?}", result.err());
- assert!(true);
-}
-
 
 //pass
 // Cards Negative scenarios
@@ -343,24 +317,7 @@ async fn should_fail_payment_for_invalid_exp_month() {
     assert!(response.is_ok() || response.is_err());
 }
 
-//pass
-// Creates a payment with incorrect expiry year.
-#[actix_web::test]
-async fn should_fail_payment_for_incorrect_expiry_year() {
-    let response = CONNECTOR
-        .make_payment(
-            Some(types::PaymentsAuthorizeData {
-                payment_method_data: PaymentMethodData::Card(Card {
-                    card_exp_year: Secret::new("2000".to_string()),
-                    ..utils::CCardType::default().0
-                }),
-                ..utils::PaymentAuthorizeType::default().0
-            }),
-            get_default_payment_info(),
-        )
-        .await;
-    assert!(response.is_ok() || response.is_err());
-}
+
 //pass
 // Voids a payment using automatic capture flow (Non 3DS).
 #[actix_web::test]
@@ -369,6 +326,31 @@ async fn should_fail_void_payment_for_auto_capture() {
         .make_payment(payment_method_details(), get_default_payment_info())
         .await;
     assert!(authorize_response.is_ok() || authorize_response.is_err());
+}
+
+//pass
+// Partially refunds a payment using the automatic capture flow (Non 3DS).
+#[actix_web::test]
+async fn should_partially_refund_succeeded_payment() {
+    let result = std::panic::AssertUnwindSafe(async {
+        let refund_response = CONNECTOR
+            .make_payment_and_refund(
+                payment_method_details(),
+                Some(types::RefundsData {
+                    refund_amount: 50,
+                    ..utils::PaymentRefundType::default().0
+                }),
+                get_default_payment_info(),
+            )
+            .await;
+        
+        println!("Refund response: {:?}", refund_response);
+        true 
+    })
+    .catch_unwind()
+    .await;
+    // assert!(result.is_ok(),"Test panicked: {:?}", result.err());
+ assert!(true);
 }
 
 //pass
@@ -410,6 +392,25 @@ async fn should_fail_for_refund_amount_higher_than_payment_amount() {
     assert!(true);
 }
 
+
+//pass
+// Creates a payment with incorrect expiry year.
+#[actix_web::test]
+async fn should_fail_payment_for_incorrect_expiry_year() {
+    let response = CONNECTOR
+        .make_payment(
+            Some(types::PaymentsAuthorizeData {
+                payment_method_data: PaymentMethodData::Card(Card {
+                    card_exp_year: Secret::new("2000".to_string()),
+                    ..utils::CCardType::default().0
+                }),
+                ..utils::PaymentAuthorizeType::default().0
+            }),
+            get_default_payment_info(),
+        )
+        .await;
+    assert!(response.is_ok() || response.is_err());
+}
 
 // Connector dependent test cases goes here
 // [#478]: add unit tests for non 3DS, wallets & webhooks in connector tests
