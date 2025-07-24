@@ -187,11 +187,11 @@ impl
     fn get_url(
         &self,
         _req: &PaymentsAuthorizeRouterData,
-        connectors: &Connectors,) -> CustomResult<String,errors::ConnectorError> {
+        connectors: &Connectors,) -> common_utils::errors::CustomResult<String,errors::ConnectorError> {
         Ok(format!("{}/pay", self.base_url(connectors)))
     }
 
-    fn get_request_body(&self, req: &PaymentsAuthorizeRouterData, _connectors: &Connectors,) -> CustomResult<RequestContent, errors::ConnectorError> {
+    fn get_request_body(&self, req: &PaymentsAuthorizeRouterData, _connectors: &Connectors,) -> common_utils::errors::CustomResult<RequestContent, errors::ConnectorError> {
         let amount = utils::convert_amount(
             self.amount_converter,
             req.request.minor_amount,
