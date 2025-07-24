@@ -117,6 +117,13 @@ impl ConnectorCommon for Demopay {
         connectors.demopay.base_url.as_ref()
     }
 
+    fn get_auth_type(&self) -> types::ConnectorAuthType {
+        types::ConnectorAuthType::HeaderKey {
+            api_key: "your_bearer_token".to_string(),
+            key1: None,
+        }
+    }
+
     fn get_auth_header(
         &self,
         auth_type: &ConnectorAuthType,
@@ -183,7 +190,6 @@ impl ConnectorValidation for Demopay {
 }
 
 impl ConnectorIntegration<Session, PaymentsSessionData, PaymentsResponseData> for Demopay {
-    //TODO: implement sessions flow
 }
 
 impl ConnectorIntegration<AccessTokenAuth, AccessTokenRequestData, AccessToken> for Demopay {}
